@@ -6,10 +6,17 @@ type User {
   id: Int!
   name: String!
   email: String!
+  role: Role!
+}
+
+"""Available user roles"""
+enum Role {
+  USER
+  ADMIN
 }
 
 type Query {
-  users: [User!]!
+  users(role: Role, limit: Int): [User!]!
   user(id: Int!): User
 }
 
@@ -28,4 +35,5 @@ input UpdateUserInput {
   name: String
   email: String
   id: Int!
+  role: Role
 }

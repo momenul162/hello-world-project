@@ -4,7 +4,14 @@ import {
   Int,
   ObjectType,
   PartialType,
+  registerEnumType,
 } from '@nestjs/graphql';
+
+export enum Role {
+  USER = 'user',
+  ADMIN = 'admin',
+}
+registerEnumType(Role, { name: 'Role', description: 'Available user roles' });
 
 @ObjectType()
 export class User {
@@ -16,6 +23,9 @@ export class User {
 
   @Field()
   email: string;
+
+  @Field(() => Role)
+  role: Role;
 }
 
 @InputType()
@@ -31,4 +41,7 @@ export class CreateUserInput {
 export class UpdateUserInput extends PartialType(CreateUserInput) {
   @Field(() => Int)
   id: number;
+
+  @Field(() => Role, { nullable: true })
+  role?: Role;
 }
