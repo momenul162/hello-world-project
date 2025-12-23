@@ -1,85 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserInput, UpdateUserInput, User, Role } from './user.type';
+import { CreateUserInput, UpdateUserInput, User, Role } from './user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  private users: User[] = [
-    { id: 1, name: 'John Doe', email: 'john@gmail.com', role: Role.USER },
-    {
-      id: 2,
-      name: 'Momenul Islam',
-      email: 'momenul@gmail.com',
-      role: Role.ADMIN,
-    },
-    {
-      id: 3,
-      name: 'Test user1',
-      email: 'test1@gmail.com',
-      role: Role.USER,
-    },
-    {
-      id: 4,
-      name: 'Test user2',
-      email: 'test2@gmail.com',
-      role: Role.USER,
-    },
-    {
-      id: 5,
-      name: 'Test user3',
-      email: 'test3@gmail.com',
-      role: Role.USER,
-    },
-    {
-      id: 6,
-      name: 'Test user4',
-      email: 'test4@gmail.com',
-      role: Role.USER,
-    },
-  ];
+  constructor(
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+  ) {}
 
-  findAll(role?: Role, limit?: number): User[] {
-    let result = this.users;
-    if (typeof role !== 'undefined' && role !== null) {
-      result = result.filter((u) => u.role === role);
+  async findAll(role?: Role, limit?: number): Promise<User[]> {
+    const query = this.userRepo.createQueryBuilder('user');
+    if (role) {
+      query.andWhere('user.role = :role', { role });
     }
     if (limit && limit > 0) {
-      result = result.slice(0, limit);
+      query.limit(limit);
     }
-    return result;
+    return await query.getMany();
   }
 
-  findOne(id: number): User | undefined {
-    const user = this.users.find((user) => user.id === id);
-
+  async findOne(id: number): Promise<User | null> {
+    const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new Error('User not found');
-
     return user;
   }
 
-  create(data: CreateUserInput): User {
-    const user: User = {
-      id: this.users.length ? Math.max(...this.users.map((u) => u.id)) + 1 : 1,
-      ...data,
-      role: Role.USER,
-    };
-    this.users.push(user);
-    return user;
+  async create(data: CreateUserInput): Promise<User> {
+    const user = this.userRepo.create({ ...data, role: Role.USER });
+    return await this.userRepo.save(user);
   }
 
-  update(data: UpdateUserInput): User | null {
-    const user = this.findOne(data.id);
-
+  async update(data: UpdateUserInput): Promise<User | null> {
+    const user = await this.findOne(data.id);
     if (!user) throw new Error('User not found');
-
     Object.assign(user, data);
-    return user;
+    return await this.userRepo.save(user);
   }
 
-  remove(id: number): String {
-    const before = this.users.length;
-    this.users = this.users.filter((user) => user.id !== id);
-
-    return this.users.length < before
+  async remove(id: number): Promise<string> {
+    const result = await this.userRepo.delete(id);
+    return result.affected && result.affected > 0
       ? 'User removed successfully'
       : 'User not found';
   }
