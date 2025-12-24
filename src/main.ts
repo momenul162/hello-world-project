@@ -18,4 +18,4 @@ async function bootstrap() {
 
   console.log(`GraphQL ready: http://localhost:3300/graphql`);
 }
-bootstrap();
+void bootstrap();

@@ -2,20 +2,39 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthResponse {
+  accessToken: String!
+  user: User!
+}
+
 input CreateUserInput {
   email: String!
   name: String!
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
+  login(loginInput: LoginInput!): AuthResponse!
+  register(registerInput: RegisterInput!): AuthResponse!
   removeUser(id: Int!): String!
   updateUser(updateUserInput: UpdateUserInput!): User
 }
 
 type Query {
+  me: User!
   user(id: Int!): User
   users(limit: Int, role: Role): [User!]!
+}
+
+input RegisterInput {
+  email: String!
+  name: String!
+  password: String!
 }
 
 """Available user roles"""

@@ -6,7 +6,8 @@ import {
   PartialType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Credential } from '../auth/entities/credential.entity';
 import {
   IsEmail,
   IsEnum,
@@ -40,6 +41,9 @@ export class User {
   @Column({ nullable: true, default: Role.USER })
   @Field({ defaultValue: Role.USER })
   role: Role;
+
+  @OneToOne(() => Credential, (credential) => credential.user)
+  credential?: Credential;
 }
 
 @InputType()
