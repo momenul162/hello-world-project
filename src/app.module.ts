@@ -13,6 +13,7 @@ import { GqlAuthGuard } from './auth/guards/gql-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { Request } from 'express';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     UserModule,
 
     EventEmitterModule.forRoot(),
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [

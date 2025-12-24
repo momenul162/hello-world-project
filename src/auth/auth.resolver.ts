@@ -6,7 +6,6 @@ import { AuthResponse } from './dto/auth-response';
 import { Public } from './decorators/public.decorator';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from '../user/user.entity';
-import { emailQueue } from 'src/queue/email.queue';
 
 @Resolver()
 export class AuthResolver {
@@ -17,24 +16,7 @@ export class AuthResolver {
   async register(
     @Args('registerInput') registerInput: RegisterInput,
   ): Promise<AuthResponse> {
-    const user = this.authService.register(registerInput);
-    await emailQueue.add(
-      'send-welcome-email',
-      {
-        email: (await user).user.email,
-        name: (await user).user.name,
-      },
-      {
-        delay: 10000, // 10 seconds
-        attempts: 3, // total try = 3
-        backoff: {
-          type: 'fixed',
-          delay: 5000, // retry gap = 5 sec
-        },
-      },
-    );
-
-    return user;
+    return this.authService.register(registerInput);
   }
 
   @Public()

@@ -5,9 +5,10 @@ import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class UserCreatedListener {
-  @OnEvent('user.created')
-  async handleUserCreatedEvent(user: User) {
-    console.log('📢 user.created event received');
+  @OnEvent('user.registered')
+  async handleUserCreatedEvent(payload: { user: User }) {
+    const { user } = payload;
+    console.log('📢 user.registered event received for:', user.email);
 
     await emailQueue.add(
       'send-welcome-email',
